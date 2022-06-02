@@ -1,0 +1,209 @@
+openapi: 3.0.3
+info:
+  description: Set up a system for receiving a payment request transaction
+  title: Payment system
+  version: 1.0.0
+servers:
+- url: http://localhost:8080
+tags:
+- name: PaymentController
+paths:
+  /api/v1/payments:
+    post:
+      operationId: payment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+        required: true
+      responses:
+        "201":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/inline_response_201'
+          description: OK
+        "400":
+          content:
+            application/json:
+              examples:
+                paymentMatchError:
+                  summary: payment Match Error
+                  value:
+                    paymentError: paymentError failed.
+              schema:
+                $ref: '#/components/schemas/inline_response_400'
+          description: Bad Request
+      security:
+      - token: []
+      summary: Payment
+      tags:
+      - PaymentController
+      x-contentType: application/json
+      x-accepts: application/json
+components:
+  schemas:
+    Buyer:
+      example:
+        firstName: John
+        lastName: Doe
+        address: Wall Street 1
+        phoneNumber: "123456"
+        city: New York
+        postIndex: "123456"
+        buyerId: "2"
+        email: test123@test.com
+      properties:
+        buyerId:
+          example: "2"
+          type: string
+        email:
+          example: test123@test.com
+          type: string
+        firstName:
+          example: John
+          type: string
+        lastName:
+          example: Doe
+          type: string
+        city:
+          example: New York
+          type: string
+        address:
+          example: Wall Street 1
+          type: string
+        phoneNumber:
+          example: "123456"
+          type: string
+        postIndex:
+          example: "123456"
+          type: string
+      type: object
+    CreditCard:
+      example:
+        expiration_year: 2024
+        cvv: "123"
+        user_name: Bob Smith
+        expiration_month: 4
+        creditCardid: "187493"
+        cc_number: "5496198584584769"
+        email: test@example.com
+      properties:
+        creditCardid:
+          example: "187493"
+          type: string
+        email:
+          example: test@example.com
+          type: string
+        user_name:
+          example: Bob Smith
+          type: string
+        cc_number:
+          example: "5496198584584769"
+          maxLength: 16
+          minLength: 16
+          type: string
+        cvv:
+          example: "123"
+          maxLength: 3
+          minLength: 3
+          type: string
+        expiration_month:
+          example: 4
+          format: int32
+          maximum: 12
+          minimum: 1
+          type: integer
+        expiration_year:
+          example: 2024
+          format: int32
+          maximum: 2100
+          minimum: 1900
+          type: integer
+      type: object
+    PaymentOrder:
+      example:
+        amount: 200.5
+        sellerAccount: "5694"
+        paymentOrderId: "5896"
+        currency: EURO
+      properties:
+        paymentOrderId:
+          example: "5896"
+          type: string
+        sellerAccount:
+          example: "5694"
+          type: string
+        amount:
+          example: 200.5
+          format: double
+          minimum: 0
+          type: number
+        currency:
+          example: EURO
+          maxLength: 4
+          minLength: 2
+          type: string
+      type: object
+    PaymentRequest:
+      example:
+        buyerInfo:
+          firstName: John
+          lastName: Doe
+          address: Wall Street 1
+          phoneNumber: "123456"
+          city: New York
+          postIndex: "123456"
+          buyerId: "2"
+          email: test123@test.com
+        paymentOrders:
+        - amount: 200.5
+          sellerAccount: "5694"
+          paymentOrderId: "5896"
+          currency: EURO
+        - amount: 200.5
+          sellerAccount: "5694"
+          paymentOrderId: "5896"
+          currency: EURO
+        creditCardInfo:
+          expiration_year: 2024
+          cvv: "123"
+          user_name: Bob Smith
+          expiration_month: 4
+          creditCardid: "187493"
+          cc_number: "5496198584584769"
+          email: test@example.com
+        chackoutId: "6547"
+      properties:
+        chackoutId:
+          example: "6547"
+          type: string
+        buyerInfo:
+          $ref: '#/components/schemas/Buyer'
+        creditCardInfo:
+          $ref: '#/components/schemas/CreditCard'
+        paymentOrders:
+          items:
+            $ref: '#/components/schemas/PaymentOrder'
+          type: array
+      type: object
+    inline_response_201:
+      example:
+        data: Payment succeeded.
+      properties:
+        data:
+          example: Payment succeeded.
+          type: string
+      type: object
+    inline_response_400:
+      properties:
+        paymentError:
+          type: string
+      type: object
+  securitySchemes:
+    token:
+      in: header
+      name: Authorization
+      type: apiKey
+
